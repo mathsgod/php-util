@@ -1,0 +1,25 @@
+{
+    "name": "mathsgod/php-util",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Raymond Chong",
+            "email": "mathsgod@yahoo.com"
+        }
+    ],
+    "require": {
+        "phpunit/phpunit": "^6.5"
+    },
+    "scripts": {
+        "test": "phpunit tests"
+    },
+    "autoload": {
+        "psr-4": {
+            "PHP\\": "src/"
+        },
+        "files": [
+            "function\/function.php"
+        ]
+    }
+}
