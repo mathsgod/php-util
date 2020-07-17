@@ -10,7 +10,7 @@ use IteratorAggregate;
 
 class Collection implements IteratorAggregate, Countable, JsonSerializable
 {
-    private $elements = [];
+    protected $elements = [];
 
     public function __construct($array = [])
     {
