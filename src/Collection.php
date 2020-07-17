@@ -1,22 +1,17 @@
 <?php
 
-namespace PHP;
+namespace PHP\Util;
 
 use ArrayIterator;
 
-function var_get($var, string $name)
-{
-    if (is_array($var)) {
-        return $var[$name];
-    }
-
-    if (is_object($var)) {
-        return $var->$name;
-    }
-}
 
 class Collection extends ArrayIterator
 {
+    public function __construct($array = [])
+    {
+        parent::__construct(array_values($array));
+    }
+
     private function asCallback($var): callable
     {
         if (is_null($var)) {
@@ -36,7 +31,7 @@ class Collection extends ArrayIterator
 
     public function all(): array
     {
-        return iterator_to_array($this);
+        return $this->getArrayCopy();
     }
 
     public function average($callback = null)
@@ -60,24 +55,19 @@ class Collection extends ArrayIterator
 
     public function contains($element): bool
     {
-        foreach ($this as $e) {
-            if ($e == $element) {
-                return true;
-            }
-        }
-        return false;
+        return in_array($element, $this->all());
     }
 
     public function diff(array $array): self
     {
-        return new self(array_values(array_diff($this->all(), $array)));
+        return new self(array_diff($this->all(), $array));
     }
 
     public function splice(int $offset, int $length = null): self
     {
         $array = $this->all();
         array_splice($array, $offset, $length ?? $this->count());
-        return new self(array_values($array));
+        return new self($array);
     }
 
     public function shuffle(): self
@@ -94,7 +84,7 @@ class Collection extends ArrayIterator
 
     public function filter(callable $callback): self
     {
-        return new self(array_values(array_filter($this->all(), $callback)));
+        return new self(array_filter($this->all(), $callback));
     }
 
     public function chunk(int $size): self

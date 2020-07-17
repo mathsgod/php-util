@@ -4,15 +4,14 @@ declare(strict_types=1);
 error_reporting(E_ALL && ~E_WARNING);
 
 use PHPUnit\Framework\TestCase;
-use PHP\Collection;
+use PHP\Util\Collection;
 
 final class CollectionTest extends TestCase
 {
 
     public function test_create()
     {
-        $collect = new Collection([1, 2, 3]);
-        $this->assertInstanceOf(Collection::class, $collect);
+        $this->assertInstanceOf(Collection::class, collect([1, 2, 3]));
     }
 
     public function test_all()

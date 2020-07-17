@@ -16,7 +16,7 @@
     },
     "autoload": {
         "psr-4": {
-            "PHP\\": "src/"
+            "PHP\\Util\\": "src/"
         },
         "files": [
             "function\/function.php"
