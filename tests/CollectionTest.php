@@ -22,7 +22,7 @@ final class CollectionTest extends TestCase
     public function test_append()
     {
         $collect = collect([1, 2, 3]);
-        $collect->append(4);
+        $collect->add(4);
         $this->assertEquals([1, 2, 3, 4], $collect->all());
     }
 
@@ -44,6 +44,7 @@ final class CollectionTest extends TestCase
         $this->assertTrue(collect([1, 2, 3])->contains(1));
         $this->assertFalse(collect([1, 2, 3])->contains(4));
     }
+
 
     public function test_diff()
     {
@@ -72,6 +73,20 @@ final class CollectionTest extends TestCase
         $this->assertEquals([2, 3], $collect->all());
     }
 
+    public function test_clear()
+    {
+        $collect = collect([1, 2, 3]);
+        $collect->clear();
+        $this->assertEquals([], $collect->all());
+    }
+
+    public function test_remove()
+    {
+        $collect = collect([1, 2, 3]);
+        $collect->remove(2);
+        $this->assertEquals([1, 3], $collect->all());
+    }
+
     public function test_chunk()
     {
         $collect = collect(['a', 'b', 'c', 'd', 'e'])->chunk(2);
@@ -81,5 +96,15 @@ final class CollectionTest extends TestCase
             ["c", "d"],
             ["e"]
         ], $collect->all());
+    }
+
+    public function test_column()
+    {
+        $this->assertEquals([1, 2, 3], collect([["a" => 1], ["a" => 2], ["a" => 3]])->column("a")->all());
+    }
+
+    public function test_join()
+    {
+        $this->assertEquals("1,2,3", collect([1, 2, 3])->join(","));
     }
 }

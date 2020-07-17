@@ -1,11 +1,19 @@
 <?php
 
 use PHP\Util\Collection;
+use PHP\Util\Lists;
 
 if (!function_exists("collect")) {
     function collect(array $array)
     {
         return new Collection($array);
+    }
+}
+
+if (!function_exists("lists")) {
+    function lists(array $array)
+    {
+        return new Lists($array);
     }
 }
 
