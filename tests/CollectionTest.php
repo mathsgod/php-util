@@ -23,6 +23,9 @@ final class CollectionTest extends TestCase
     public function test_sum()
     {
         $this->assertEquals(6, collect([1, 2, 3])->sum());
+        $this->assertEquals(6, collect([
+            ["a" => 1], ["a" => 2], ["a" => 3]
+        ])->sum("a"));
     }
 
     public function test_average()
@@ -73,6 +76,4 @@ final class CollectionTest extends TestCase
             ["e"]
         ], $collect->all());
     }
-    
-    
 }

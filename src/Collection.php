@@ -4,29 +4,49 @@ namespace PHP;
 
 use ArrayIterator;
 
+function var_get($var, string $name)
+{
+    if (is_array($var)) {
+        return $var[$name];
+    }
+
+    if (is_object($var)) {
+        return $var->$name;
+    }
+}
+
 class Collection extends ArrayIterator
 {
+    private function asCallback($var): callable
+    {
+        if (is_null($var)) {
+            return function ($v) {
+                return $v;
+            };
+        }
+
+        if (is_callable($var)) {
+            return $var;
+        }
+
+        return function ($item) use ($var) {
+            return var_get($item, $var);
+        };
+    }
+
     public function all(): array
     {
         return iterator_to_array($this);
     }
 
-    public function average()
+    public function average($callback = null)
     {
-        return $this->sum() / $this->count();
+        return $this->sum($callback) / $this->count();
     }
 
     public function sum($callback = null)
     {
-        if (is_null($callback)) {
-            $callback = function ($value) {
-                return $value;
-            };
-        } elseif (!is_callable($callback)) {
-            $callback = function(){
-             //   return 
-            }
-        }
+        $callback = $this->asCallback($callback);
 
         return $this->reduce(function ($result, $item) use ($callback) {
             return $result + $callback($item);
@@ -80,5 +100,10 @@ class Collection extends ArrayIterator
     public function chunk(int $size): self
     {
         return new self(array_chunk($this->all(), $size));
+    }
+
+    public function __debugInfo()
+    {
+        return $this->all();
     }
 }
