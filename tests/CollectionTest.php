@@ -19,6 +19,13 @@ final class CollectionTest extends TestCase
         $this->assertEquals([1, 2, 3], collect([1, 2, 3])->all());
     }
 
+    public function test_append()
+    {
+        $collect = collect([1, 2, 3]);
+        $collect->append(4);
+        $this->assertEquals([1, 2, 3, 4], $collect->all());
+    }
+
     public function test_sum()
     {
         $this->assertEquals(6, collect([1, 2, 3])->sum());

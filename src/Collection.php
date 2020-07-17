@@ -2,13 +2,17 @@
 
 namespace PHP\Util;
 
-use ArrayIterator;
+use ArrayObject;
+use JsonSerializable;
+use Traversable;
 
-
-class Collection extends ArrayIterator
+class Collection extends ArrayObject implements JsonSerializable
 {
     public function __construct($array = [])
     {
+        if ($array instanceof Traversable) {
+            $array = iterator_to_array($array);
+        }
         parent::__construct(array_values($array));
     }
 
@@ -93,6 +97,11 @@ class Collection extends ArrayIterator
     }
 
     public function __debugInfo()
+    {
+        return $this->all();
+    }
+
+    public function jsonSerialize()
     {
         return $this->all();
     }
