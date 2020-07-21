@@ -8,7 +8,7 @@
             "email": "mathsgod@yahoo.com"
         }
     ],
-    "require": {
+    "require-dev": {
         "phpunit/phpunit": "^6.5"
     },
     "scripts": {
