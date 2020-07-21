@@ -2,6 +2,7 @@
     "name": "mathsgod/php-util",
     "type": "library",
     "license": "MIT",
+    "description": "a simple php util for data structure",
     "authors": [
         {
             "name": "Raymond Chong",
