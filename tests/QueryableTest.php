@@ -134,4 +134,33 @@ final class QueryableTest extends TestCase
         $q = collect([1, 2, 3])->asQueryable()->reverse();
         $this->assertEquals([3, 2, 1], iterator_to_array($q));
     }
+
+    public function test_where()
+    {
+        $q = collect([
+            "apple", "passionfruit", "banana", "mango",
+            "orange", "blueberry", "grape", "strawberry"
+        ])->asQueryable()->where(function ($f) {
+            return strlen($f) < 6;
+        });
+        $this->assertEquals(["apple", "mango", "grape"], iterator_to_array($q));
+    }
+
+    public function test_skip()
+    {
+        $q = collect([1, 2, 3, 4, 5])->asQueryable()->skip(3);
+        $this->assertEquals([4, 5], iterator_to_array($q));
+    }
+
+    public function test_take()
+    {
+        $q = collect([1, 2, 3, 4, 5])->asQueryable()->take(3);
+        $this->assertEquals([1, 2, 3], iterator_to_array($q));
+    }
+
+    public function test_takeLast()
+    {
+        $q = collect([1, 2, 3, 4, 5])->asQueryable()->takeLast(3);
+        $this->assertEquals([3, 4, 5], iterator_to_array($q));
+    }
 }

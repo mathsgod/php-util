@@ -80,4 +80,25 @@ interface IQueryable extends IteratorAggregate
      * 將序列的每個元素規劃成一個新的表單。
      */
     public function select(callable $callback): IQueryable;
+
+
+    /**
+     * 略過序列中指定的項目數目，然後傳回其餘項目。
+     */
+    public function skip(int $count): IQueryable;
+
+    /**
+     * 從序列開頭傳回指定的連續項目數目。
+     */
+    public function take(int $count): IQueryable;
+
+    /**
+     * 傳回新的可查詢序列，其包含 source 的最後 count 元素。
+     */
+    public function takeLast(int $count): IQueryable;
+
+    /**
+     * 根據述詞來篩選值序列。
+     */
+    public function where(callable $predicate): IQueryable;
 }

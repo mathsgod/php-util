@@ -3,6 +3,7 @@
 namespace PHP\Util;
 
 use ArrayObject;
+use iterable;
 use IteratorAggregate;
 use Traversable;
 
@@ -141,6 +142,35 @@ class Queryable implements IQueryable
 
     public function reverse(): IQueryable
     {
-        return new self(new ArrayObject(array_reverse(iterator_to_array($this->source))));
+        return new self(new ArrayObject(array_values(array_reverse(iterator_to_array($this->source)))));
+    }
+
+    public function where(callable $predicate): IQueryable
+    {
+        return new self(new ArrayObject(array_values(array_filter(iterator_to_array($this->source), $predicate))));
+    }
+
+    public function skip(int $count): IQueryable
+    {
+        $arr = iterator_to_array($this->source);
+        $arr = array_slice($arr, $count);
+        $arr = array_values($arr);
+        return new self(new ArrayObject($arr));
+    }
+
+    public function take(int $count): IQueryable
+    {
+        $arr = iterator_to_array($this->source);
+        $arr = array_slice($arr, 0, $count);
+        $arr = array_values($arr);
+        return new self(new ArrayObject($arr));
+    }
+
+    public function takeLast(int $count): IQueryable
+    {
+        $arr = iterator_to_array($this->source);
+        $arr = array_slice($arr, -$count);
+        $arr = array_values($arr);
+        return new self(new ArrayObject($arr));
     }
 }
