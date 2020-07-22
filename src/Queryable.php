@@ -10,6 +10,7 @@ use Traversable;
 class Queryable implements IQueryable
 {
     private $source;
+    public $expression = [];
     public function __construct(Traversable $source)
     {
         $this->source  = $source;
@@ -17,12 +18,33 @@ class Queryable implements IQueryable
 
     public function getIterator()
     {
-        return $this->source;
+        $source = $this->source;
+        foreach ($this->expression as $expression) {
+            switch ($expression["type"]) {
+                case "select":
+                    $new_source = new ArrayObject();
+                    $callback = $expression["callback"];
+                    foreach ($source as $item) {
+                        $new_source->append($callback($item));
+                    }
+                    $source = $new_source;
+                    break;
+            }
+        }
+
+        return $source;
+    }
+
+    public function createQuery($expression): IQueryable
+    {
+        $q = new self($this->source);
+        $q->expression = $expression;
+        return $q;
     }
 
     public function __debugInfo()
     {
-        return iterator_to_array($this->source);
+        return iterator_to_array($this);
     }
 
     public function first()
@@ -65,7 +87,7 @@ class Queryable implements IQueryable
 
     public function count(): int
     {
-        return iterator_count($this->source);
+        return iterator_count($this);
     }
 
     public function all(callable $callback): bool
@@ -86,30 +108,31 @@ class Queryable implements IQueryable
 
     public function select(callable $callback): IQueryable
     {
-        $ret = new ArrayObject();
-        foreach ($this->source as $item) {
-            $ret->append($callback($item));
-        }
-        return new self($ret);
+        $exp = $this->expression;
+        $exp[] = [
+            "type" => "select",
+            "callback" => $callback
+        ];
+        return $this->createQuery($exp);
     }
 
-    public function orderBy(callable $callback): IQueryable
+    public function orderBy(callable $key_selector): IQueryable
     {
         $arr = iterator_to_array($this->source);
-        usort($arr, function ($a, $b) use ($callback) {
-            $a_value = $callback($a);
-            $b_value = $callback($b);
+        usort($arr, function ($a, $b) use ($key_selector) {
+            $a_value = $key_selector($a);
+            $b_value = $key_selector($b);
             return $a_value <=> $b_value;
         });
         return new self(new ArrayObject($arr));
     }
 
-    public function orderByDescending(callable $callback): IQueryable
+    public function orderByDescending(callable $key_selector): IQueryable
     {
         $arr = iterator_to_array($this->source);
-        usort($arr, function ($a, $b) use ($callback) {
-            $a_value = $callback($a);
-            $b_value = $callback($b);
+        usort($arr, function ($a, $b) use ($key_selector) {
+            $a_value = $key_selector($a);
+            $b_value = $key_selector($b);
             return $b_value <=> $a_value;
         });
         return new self(new ArrayObject($arr));
@@ -122,6 +145,10 @@ class Queryable implements IQueryable
 
     public function distinct(): IQueryable
     {
+        $exp=$this->expression;
+        //$exp[]=[
+            //"type"=""
+        //]
         return new self(new ArrayObject(array_unique(iterator_to_array($this->source))));
     }
 

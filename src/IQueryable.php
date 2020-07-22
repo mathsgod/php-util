@@ -55,12 +55,12 @@ interface IQueryable extends IteratorAggregate
     /**
      * 依遞增順序排序序列中的項目。
      */
-    public function orderBy(callable $callback): IQueryable;
+    public function orderBy(callable $key_selector): IQueryable;
 
     /**
      * 依遞減順序排序序列中的項目。
      */
-    public function orderByDescending(callable $callback): IQueryable;
+    public function orderByDescending(callable $key_selector): IQueryable;
 
     /**
      * 傳回新的可查詢序列，包含來自 source 的元素，並在開頭加上指定的 element。
