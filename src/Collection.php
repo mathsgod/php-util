@@ -2,7 +2,7 @@
 
 namespace PHP\Util;
 
-use ArrayIterator;
+use ArrayObject;
 use Countable;
 use Traversable;
 use JsonSerializable;
@@ -10,60 +10,61 @@ use IteratorAggregate;
 
 class Collection implements IteratorAggregate, Countable, JsonSerializable
 {
-    protected $elements = [];
+    protected $elements = null;
 
     public function __construct($array = [])
     {
         if ($array instanceof Traversable) {
             $array = iterator_to_array($array);
         }
-        $this->elements = array_values($array);
+        $this->elements = new ArrayObject(array_values($array));
     }
 
     public function getIterator()
     {
-        return new ArrayIterator($this->elements);
+        return $this->elements->getIterator();
     }
 
     public function clear()
     {
-        unset($this->elements);
-        $this->elements = [];
+        $this->elements->exchangeArray([]);
     }
 
     public function toArray(): array
     {
-        return $this->elements;
+        return $this->elements->getArrayCopy();
     }
 
     public function add($e)
     {
-        $this->elements[] = $e;
+        $this->elements->append($e);
     }
 
     public function contains($e): bool
     {
-        return in_array($e, $this->elements);
+        return in_array($e, $this->toArray());
     }
 
     public function isEmpty(): bool
     {
-        return count($this->elements) == 0;
+        return $this->elements->count() == 0;
     }
 
     public function remove($e)
     {
-        $this->elements = array_values(array_diff($this->elements, [$e]));
+        $array = $this->elements->getArrayCopy();
+        $array = array_values(array_diff($array, [$e]));
+        $this->elements->exchangeArray($array);
     }
 
     public function count()
     {
-        return count($this->elements);
+        return $this->elements->count();
     }
 
     public function all(): array
     {
-        return $this->elements;
+        return $this->elements->getArrayCopy();
     }
 
 
@@ -156,5 +157,10 @@ class Collection implements IteratorAggregate, Countable, JsonSerializable
     public function column($column_key): self
     {
         return new self(array_column($this->all(), $column_key));
+    }
+
+    public function asQueryable(): IQueryable
+    {
+        return new Queryable($this->elements);
     }
 }

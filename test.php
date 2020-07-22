@@ -1,6 +1,13 @@
 <?php
 
 require_once("vendor/autoload.php");
-print_R(collect([["a" => 1], ["a" => 2], ["a" => 3]])->all());
 
-$list=lists([1,2,3]);
+
+$a = new ArrayObject();
+$a->append(1);
+
+$b = $a;
+$b->append(2);
+
+
+print_R($a->getArrayCopy());
