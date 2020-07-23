@@ -3,7 +3,6 @@
 declare(strict_types=1);
 error_reporting(E_ALL && ~E_WARNING);
 
-use PHP\Util\IQueryable;
 use PHPUnit\Framework\TestCase;
 
 final class OrderedQueryableTest extends TestCase
