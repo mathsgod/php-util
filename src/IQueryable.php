@@ -55,7 +55,7 @@ interface IQueryable extends IteratorAggregate
     /**
      * 依遞增順序排序序列中的項目。
      */
-    public function orderBy(callable $key_selector): IQueryable;
+    public function orderBy(callable $key_selector): IOrderedQueryable;
 
     /**
      * 依遞減順序排序序列中的項目。

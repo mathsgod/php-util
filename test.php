@@ -3,13 +3,21 @@
 require_once("vendor/autoload.php");
 
 
-$q = collect([1, 2, 3])->asQueryable();
+$q = collect([
+    "grape", "passionfruit", "banana", "apple",
+    "orange", "raspberry", "mango", "blueberry"
+])->asQueryable();
 
-print_r($q->prepend(0)->take(3)->takeLast(2));
+$aa=$q->orderBy(function ($o) {
+    return strlen($o);
+})->thenBy(function ($o) {
+    return $o;
+});
+print_r(iterator_to_array($aa));
 die();
 
 
-$a=$q->select(function ($o) {
+$a = $q->select(function ($o) {
     return [
         "v" => $o
     ];

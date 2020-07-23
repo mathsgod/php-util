@@ -4,5 +4,5 @@ namespace PHP\Util;
 
 interface IOrderedQueryable extends IQueryable
 {
-    public function thenBy(callback $key_selector): IOrderedQueryable;
+    public function thenBy(callable $key_selector): IOrderedQueryable;
 }

@@ -5,94 +5,98 @@ namespace PHP\Util;
 use ArrayObject;
 use Traversable;
 
-use function PHPSTORM_META\map;
-
 class Queryable implements IQueryable
 {
-    private $source;
+    protected $source;
     public $expression = [];
     public function __construct(Traversable $source)
     {
         $this->source  = $source;
     }
 
-    public function getIterator()
+    protected static function Execute($source, $expression)
     {
-        $source = $this->source;
-        foreach ($this->expression as $expression) {
-            switch ($expression["type"]) {
-                case "select":
-                    $new_source = new ArrayObject();
-                    $selector = $expression["params"]["selector"];
-                    foreach ($source as $item) {
-                        $new_source->append($selector($item));
-                    }
-                    $source = $new_source;
-                    break;
-                case "orderBy":
-                    $arr = iterator_to_array($source);
-                    $key_selector = $expression["params"]["key_selector"];
-                    usort($arr, function ($a, $b) use ($key_selector) {
-                        $a_value = $key_selector($a);
-                        $b_value = $key_selector($b);
-                        return $a_value <=> $b_value;
-                    });
-                    $source = new ArrayObject($arr);
-                    break;
-                case "orderByDescending":
-                    $arr = iterator_to_array($source);
-                    $key_selector = $expression["params"]["key_selector"];
-                    usort($arr, function ($a, $b) use ($key_selector) {
-                        $a_value = $key_selector($a);
-                        $b_value = $key_selector($b);
-                        return $b_value <=> $a_value;
-                    });
-                    $source = new ArrayObject($arr);
-                    break;
-                case "distinct":
-                    $source = new ArrayObject(array_unique(iterator_to_array($source)));
-                    break;
-                case "prepend":
-                    $arr = iterator_to_array($source);
-                    array_unshift($arr, $expression["params"]["element"]);
-                    $source = new ArrayObject($arr);
-                    break;
-                case "reverse":
-                    $source = new ArrayObject(array_values(array_reverse(iterator_to_array($source))));
-                    break;
-                case "where":
-                    $predicate = $expression["params"]["predicate"];
-                    $source = new ArrayObject(array_values(array_filter(iterator_to_array($source), $predicate)));
-                    break;
-                case "skip":
-                    $count = $expression["params"]["count"];
-                    $arr = iterator_to_array($source);
-                    $arr = array_slice($arr, $count);
-                    $arr = array_values($arr);
-                    $source = new ArrayObject($arr);
-                    break;
-                case "take":
-                    $count = $expression["params"]["count"];
-                    $arr = iterator_to_array($source);
-                    $arr = array_slice($arr, 0, $count);
-                    $arr = array_values($arr);
-                    $source = new ArrayObject($arr);
-                    break;
-                case "takeLast":
-                    $count = $expression["params"]["count"];
-                    $arr = iterator_to_array($source);
-                    $arr = array_slice($arr, -$count);
-                    $arr = array_values($arr);
-                    $source = new ArrayObject($arr);
-                    break;
-            }
+        switch ($expression["type"]) {
+            case "select":
+                $new_source = new ArrayObject();
+                $selector = $expression["params"]["selector"];
+                foreach ($source as $item) {
+                    $new_source->append($selector($item));
+                }
+                $source = $new_source;
+                break;
+            case "orderBy":
+                $arr = iterator_to_array($source);
+                $key_selector = $expression["params"]["key_selector"];
+                usort($arr, function ($a, $b) use ($key_selector) {
+                    $a_value = $key_selector($a);
+                    $b_value = $key_selector($b);
+                    return $a_value <=> $b_value;
+                });
+                $source = new ArrayObject($arr);
+                break;
+            case "orderByDescending":
+                $arr = iterator_to_array($source);
+                $key_selector = $expression["params"]["key_selector"];
+                usort($arr, function ($a, $b) use ($key_selector) {
+                    $a_value = $key_selector($a);
+                    $b_value = $key_selector($b);
+                    return $b_value <=> $a_value;
+                });
+                $source = new ArrayObject($arr);
+                break;
+            case "distinct":
+                $source = new ArrayObject(array_unique(iterator_to_array($source)));
+                break;
+            case "prepend":
+                $arr = iterator_to_array($source);
+                array_unshift($arr, $expression["params"]["element"]);
+                $source = new ArrayObject($arr);
+                break;
+            case "reverse":
+                $source = new ArrayObject(array_values(array_reverse(iterator_to_array($source))));
+                break;
+            case "where":
+                $predicate = $expression["params"]["predicate"];
+                $source = new ArrayObject(array_values(array_filter(iterator_to_array($source), $predicate)));
+                break;
+            case "skip":
+                $count = $expression["params"]["count"];
+                $arr = iterator_to_array($source);
+                $arr = array_slice($arr, $count);
+                $arr = array_values($arr);
+                $source = new ArrayObject($arr);
+                break;
+            case "take":
+                $count = $expression["params"]["count"];
+                $arr = iterator_to_array($source);
+                $arr = array_slice($arr, 0, $count);
+                $arr = array_values($arr);
+                $source = new ArrayObject($arr);
+                break;
+            case "takeLast":
+                $count = $expression["params"]["count"];
+                $arr = iterator_to_array($source);
+                $arr = array_slice($arr, -$count);
+                $arr = array_values($arr);
+                $source = new ArrayObject($arr);
+                break;
         }
         return $source;
     }
 
-    public function createQuery($expression): IQueryable
+    public function getIterator()
     {
-        $q = new self($this->source);
+        $source = $this->source;
+        foreach ($this->expression as $expression) {
+            $source = $this->Execute($source, $expression);
+        }
+        return $source;
+    }
+
+    public function createQuery($expression)
+    {
+        $q = new static($this->source);
         $q->expression = $expression;
         return $q;
     }
@@ -171,7 +175,7 @@ class Queryable implements IQueryable
         return $this->createQuery($exp);
     }
 
-    public function orderBy(callable $key_selector): IQueryable
+    public function orderBy(callable $key_selector): IOrderedQueryable
     {
         $exp = $this->expression;
         $exp[] = [
@@ -180,7 +184,10 @@ class Queryable implements IQueryable
                 "key_selector" => $key_selector
             ]
         ];
-        return $this->createQuery($exp);
+
+        $q = new OrderedQueryable($this->source);
+        $q->expression = $exp;
+        return $q;
     }
 
     public function orderByDescending(callable $key_selector): IQueryable
