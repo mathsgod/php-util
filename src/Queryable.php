@@ -190,7 +190,7 @@ class Queryable implements IQueryable
         return $q;
     }
 
-    public function orderByDescending(callable $key_selector): IQueryable
+    public function orderByDescending(callable $key_selector): IOrderedQueryable
     {
         $exp = $this->expression;
         $exp[] = [
@@ -199,7 +199,9 @@ class Queryable implements IQueryable
                 "key_selector" => $key_selector
             ]
         ];
-        return $this->createQuery($exp);
+        $q = new OrderedQueryable($this->source);
+        $q->expression = $exp;
+        return $q;
     }
 
     public function contains($item): bool
