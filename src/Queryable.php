@@ -3,9 +3,9 @@
 namespace PHP\Util;
 
 use ArrayObject;
-use iterable;
-use IteratorAggregate;
 use Traversable;
+
+use function PHPSTORM_META\map;
 
 class Queryable implements IQueryable
 {
@@ -23,15 +23,70 @@ class Queryable implements IQueryable
             switch ($expression["type"]) {
                 case "select":
                     $new_source = new ArrayObject();
-                    $callback = $expression["callback"];
+                    $selector = $expression["params"]["selector"];
                     foreach ($source as $item) {
-                        $new_source->append($callback($item));
+                        $new_source->append($selector($item));
                     }
                     $source = $new_source;
                     break;
+                case "orderBy":
+                    $arr = iterator_to_array($source);
+                    $key_selector = $expression["params"]["key_selector"];
+                    usort($arr, function ($a, $b) use ($key_selector) {
+                        $a_value = $key_selector($a);
+                        $b_value = $key_selector($b);
+                        return $a_value <=> $b_value;
+                    });
+                    $source = new ArrayObject($arr);
+                    break;
+                case "orderByDescending":
+                    $arr = iterator_to_array($source);
+                    $key_selector = $expression["params"]["key_selector"];
+                    usort($arr, function ($a, $b) use ($key_selector) {
+                        $a_value = $key_selector($a);
+                        $b_value = $key_selector($b);
+                        return $b_value <=> $a_value;
+                    });
+                    $source = new ArrayObject($arr);
+                    break;
+                case "distinct":
+                    $source = new ArrayObject(array_unique(iterator_to_array($source)));
+                    break;
+                case "prepend":
+                    $arr = iterator_to_array($source);
+                    array_unshift($arr, $expression["params"]["element"]);
+                    $source = new ArrayObject($arr);
+                    break;
+                case "reverse":
+                    $source = new ArrayObject(array_values(array_reverse(iterator_to_array($source))));
+                    break;
+                case "where":
+                    $predicate = $expression["params"]["predicate"];
+                    $source = new ArrayObject(array_values(array_filter(iterator_to_array($source), $predicate)));
+                    break;
+                case "skip":
+                    $count = $expression["params"]["count"];
+                    $arr = iterator_to_array($source);
+                    $arr = array_slice($arr, $count);
+                    $arr = array_values($arr);
+                    $source = new ArrayObject($arr);
+                    break;
+                case "take":
+                    $count = $expression["params"]["count"];
+                    $arr = iterator_to_array($source);
+                    $arr = array_slice($arr, 0, $count);
+                    $arr = array_values($arr);
+                    $source = new ArrayObject($arr);
+                    break;
+                case "takeLast":
+                    $count = $expression["params"]["count"];
+                    $arr = iterator_to_array($source);
+                    $arr = array_slice($arr, -$count);
+                    $arr = array_values($arr);
+                    $source = new ArrayObject($arr);
+                    break;
             }
         }
-
         return $source;
     }
 
@@ -52,17 +107,17 @@ class Queryable implements IQueryable
         if ($this->count() == 0) {
             throw new InvalidOperationException();
         }
-        return iterator_to_array($this->source)[0];
+        return iterator_to_array($this)[0];
     }
 
     public function sum()
     {
-        return array_sum(iterator_to_array($this->source));
+        return array_sum(iterator_to_array($this));
     }
 
     public function min(callable $callback)
     {
-        return array_reduce(iterator_to_array($this->source), function ($result, $item) use ($callback) {
+        return array_reduce(iterator_to_array($this), function ($result, $item) use ($callback) {
             if (is_null($result)) {
                 return $item;
             }
@@ -72,7 +127,7 @@ class Queryable implements IQueryable
 
     public function max(callable $callback)
     {
-        return array_reduce(iterator_to_array($this->source), function ($result, $item) use ($callback) {
+        return array_reduce(iterator_to_array($this), function ($result, $item) use ($callback) {
             if (is_null($result)) {
                 return $item;
             }
@@ -92,13 +147,13 @@ class Queryable implements IQueryable
 
     public function all(callable $callback): bool
     {
-        $array = array_filter(iterator_to_array($this->source), $callback);
+        $array = array_filter(iterator_to_array($this), $callback);
         return count($array) == $this->count();
     }
 
     public function any(callable $callback): bool
     {
-        foreach ($this->source as $item) {
+        foreach ($this as $item) {
             if ($callback($item)) {
                 return true;
             }
@@ -106,36 +161,38 @@ class Queryable implements IQueryable
         return false;
     }
 
-    public function select(callable $callback): IQueryable
+    public function select(callable $selector): IQueryable
     {
         $exp = $this->expression;
         $exp[] = [
             "type" => "select",
-            "callback" => $callback
+            "params" => ["selector" => $selector]
         ];
         return $this->createQuery($exp);
     }
 
     public function orderBy(callable $key_selector): IQueryable
     {
-        $arr = iterator_to_array($this->source);
-        usort($arr, function ($a, $b) use ($key_selector) {
-            $a_value = $key_selector($a);
-            $b_value = $key_selector($b);
-            return $a_value <=> $b_value;
-        });
-        return new self(new ArrayObject($arr));
+        $exp = $this->expression;
+        $exp[] = [
+            "type" => "orderBy",
+            "params" => [
+                "key_selector" => $key_selector
+            ]
+        ];
+        return $this->createQuery($exp);
     }
 
     public function orderByDescending(callable $key_selector): IQueryable
     {
-        $arr = iterator_to_array($this->source);
-        usort($arr, function ($a, $b) use ($key_selector) {
-            $a_value = $key_selector($a);
-            $b_value = $key_selector($b);
-            return $b_value <=> $a_value;
-        });
-        return new self(new ArrayObject($arr));
+        $exp = $this->expression;
+        $exp[] = [
+            "type" => "orderByDescending",
+            "params" => [
+                "key_selector" => $key_selector
+            ]
+        ];
+        return $this->createQuery($exp);
     }
 
     public function contains($item): bool
@@ -145,11 +202,11 @@ class Queryable implements IQueryable
 
     public function distinct(): IQueryable
     {
-        $exp=$this->expression;
-        //$exp[]=[
-            //"type"=""
-        //]
-        return new self(new ArrayObject(array_unique(iterator_to_array($this->source))));
+        $exp = $this->expression;
+        $exp[] = [
+            "type" => "distinct"
+        ];
+        return $this->createQuery($exp);
     }
 
     public function last()
@@ -157,47 +214,71 @@ class Queryable implements IQueryable
         if ($this->count() == 0) {
             throw new InvalidOperationException();
         }
-        return iterator_to_array($this->source)[$this->count() - 1];
+        return iterator_to_array($this)[$this->count() - 1];
     }
 
     public function prepend($element): IQueryable
     {
-        $arr = iterator_to_array($this->source);
-        array_unshift($arr, $element);
-        return new self(new ArrayObject($arr));
+        $exp = $this->expression;
+        $exp[] = [
+            "type" => "prepend",
+            "params" => [
+                "element" => $element
+            ]
+        ];
+        return $this->createQuery($exp);
     }
 
     public function reverse(): IQueryable
     {
-        return new self(new ArrayObject(array_values(array_reverse(iterator_to_array($this->source)))));
+        $exp = $this->expression;
+        $exp[] = [
+            "type" => "reverse"
+        ];
+        return $this->createQuery($exp);
     }
 
     public function where(callable $predicate): IQueryable
     {
-        return new self(new ArrayObject(array_values(array_filter(iterator_to_array($this->source), $predicate))));
+        $exp = $this->expression;
+        $exp[] = [
+            "type" => "where",
+            "params" => [
+                "predicate" => $predicate
+            ]
+        ];
+        return $this->createQuery($exp);
     }
 
     public function skip(int $count): IQueryable
     {
-        $arr = iterator_to_array($this->source);
-        $arr = array_slice($arr, $count);
-        $arr = array_values($arr);
-        return new self(new ArrayObject($arr));
+        $exp = $this->expression;
+        $exp[] = [
+            "type" => "skip",
+            "params" => [
+                "count" => $count
+            ]
+        ];
+        return $this->createQuery($exp);
     }
 
     public function take(int $count): IQueryable
     {
-        $arr = iterator_to_array($this->source);
-        $arr = array_slice($arr, 0, $count);
-        $arr = array_values($arr);
-        return new self(new ArrayObject($arr));
+        $exp = $this->expression;
+        $exp[] = [
+            "type" => "take",
+            "params" => ["count" => $count]
+        ];
+        return $this->createQuery($exp);
     }
 
     public function takeLast(int $count): IQueryable
     {
-        $arr = iterator_to_array($this->source);
-        $arr = array_slice($arr, -$count);
-        $arr = array_values($arr);
-        return new self(new ArrayObject($arr));
+        $exp = $this->expression;
+        $exp[] = [
+            "type" => "takeLast",
+            "params" => ["count" => $count]
+        ];
+        return $this->createQuery($exp);
     }
 }

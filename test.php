@@ -5,16 +5,23 @@ require_once("vendor/autoload.php");
 
 $q = collect([1, 2, 3])->asQueryable();
 
+print_r($q->prepend(0)->take(3)->takeLast(2));
+die();
 
-$q->select(function ($o) {
+
+$a=$q->select(function ($o) {
     return [
         "v" => $o
     ];
 });
 
-echo $q->count();
 
-print_r($q->first());
+print_r($q->expression);
+print_r($a->expression);
+
+echo $a->count();
+
+print_r($a->first());
 
 exit();
 
