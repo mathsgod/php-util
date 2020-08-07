@@ -84,7 +84,6 @@ final class QueryableTest extends TestCase
                 "value" => $o
             ];
         });
-
         $this->assertEquals(["value" => 1], $q->first());
     }
 

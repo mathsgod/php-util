@@ -14,6 +14,14 @@ final class CollectionTest extends TestCase
         $this->assertInstanceOf(Collection::class, collect([1, 2, 3]));
     }
 
+    public function test_sort()
+    {
+        $c = collect([3, 1, 2])->sort(function ($a, $b) {
+            return $a <=> $b;
+        });
+        $this->assertEquals([1, 2, 3], $c->all());
+    }
+
     public function test_all()
     {
         $this->assertEquals([1, 2, 3], collect([1, 2, 3])->all());

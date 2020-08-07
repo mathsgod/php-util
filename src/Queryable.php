@@ -52,17 +52,17 @@ class Queryable implements IQueryable
         if ($this->count() == 0) {
             throw new InvalidOperationException();
         }
-        return iterator_to_array($this->source)[0];
+        return iterator_to_array($this)[0];
     }
 
     public function sum()
     {
-        return array_sum(iterator_to_array($this->source));
+        return array_sum(iterator_to_array($this));
     }
 
     public function min(callable $callback)
     {
-        return array_reduce(iterator_to_array($this->source), function ($result, $item) use ($callback) {
+        return array_reduce(iterator_to_array($this), function ($result, $item) use ($callback) {
             if (is_null($result)) {
                 return $item;
             }
@@ -72,7 +72,7 @@ class Queryable implements IQueryable
 
     public function max(callable $callback)
     {
-        return array_reduce(iterator_to_array($this->source), function ($result, $item) use ($callback) {
+        return array_reduce(iterator_to_array($this), function ($result, $item) use ($callback) {
             if (is_null($result)) {
                 return $item;
             }
@@ -92,13 +92,13 @@ class Queryable implements IQueryable
 
     public function all(callable $callback): bool
     {
-        $array = array_filter(iterator_to_array($this->source), $callback);
+        $array = array_filter(iterator_to_array($this), $callback);
         return count($array) == $this->count();
     }
 
     public function any(callable $callback): bool
     {
-        foreach ($this->source as $item) {
+        foreach ($this as $item) {
             if ($callback($item)) {
                 return true;
             }

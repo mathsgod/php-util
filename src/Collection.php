@@ -163,4 +163,11 @@ class Collection implements IteratorAggregate, Countable, JsonSerializable
     {
         return new Queryable($this->elements);
     }
+
+    public function sort(callable $callback): Lists
+    {
+        $array = $this->all();
+        usort($array, $callback);
+        return new Lists($array);
+    }
 }
