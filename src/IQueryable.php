@@ -2,9 +2,10 @@
 
 namespace PHP\Util;
 
+use Countable;
 use IteratorAggregate;
 
-interface IQueryable extends IteratorAggregate
+interface IQueryable extends IteratorAggregate, Countable
 {
     /**
      * 判斷序列的所有項目是否全都符合條件。
