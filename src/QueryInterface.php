@@ -4,13 +4,19 @@ namespace PHP\Util;
 
 interface QueryInterface
 {
-    public function limit(int $limit);
+    /**
+     * @param int|string $limit
+     * ust int
+     */
+    public function limit($limit);
+
     public function offset(int $offset);
+
     public function filter(array $filter);
 
     /**
      * @param array|string $order
-     * suggest use array
+     * use array
      */
     public function orderBy($order);
 }
