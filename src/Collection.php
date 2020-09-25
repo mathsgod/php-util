@@ -53,7 +53,13 @@ class Collection implements IteratorAggregate, Countable, JsonSerializable
     public function remove($e)
     {
         $array = $this->elements->getArrayCopy();
-        $array = array_values(array_diff($array, [$e]));
+        if (is_object($e)) {
+            $array = array_values(array_udiff($array, [$e], function ($a, $b) {
+                return $a <=> $b;
+            }));
+        } else {
+            $array = array_values(array_diff($array, [$e]));
+        }
         $this->elements->exchangeArray($array);
     }
 
