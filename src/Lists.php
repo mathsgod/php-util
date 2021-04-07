@@ -6,11 +6,14 @@ class Lists extends Collection
 {
     public function pop()
     {
-        return array_pop($this->elements);
+        $count = $this->elements->count();
+        $value = $this->elements->offsetGet($count - 1);
+        $this->elements->offsetUnset($count);
+        return $value;
     }
 
     public function push($e)
     {
-        return array_push($this->elements, $e);
+        $this->elements->append($e);
     }
 }
