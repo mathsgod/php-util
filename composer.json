@@ -9,8 +9,11 @@
             "email": "mathsgod@yahoo.com"
         }
     ],
+    "require": {
+        "php": ">=7.3"
+    },
     "require-dev": {
-        "phpunit/phpunit": "^6.5"
+        "phpunit/phpunit": "^9.5"
     },
     "scripts": {
         "test": "phpunit tests"
