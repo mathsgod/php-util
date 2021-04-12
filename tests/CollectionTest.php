@@ -115,4 +115,12 @@ final class CollectionTest extends TestCase
     {
         $this->assertEquals("1,2,3", collect([1, 2, 3])->join(","));
     }
+
+    public function test_merge()
+    {
+
+        $collect = collect(["a", "b", "c"]);
+        $collect = $collect->merge(["d", "e"]);
+        $this->assertEquals(["a", "b", "c", "d", "e"], $collect->all());
+    }
 }

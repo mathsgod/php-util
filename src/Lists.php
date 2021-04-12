@@ -8,7 +8,7 @@ class Lists extends Collection
     {
         $count = $this->elements->count();
         $value = $this->elements->offsetGet($count - 1);
-        $this->elements->offsetUnset($count);
+        $this->elements->offsetUnset($count - 1);
         return $value;
     }
 

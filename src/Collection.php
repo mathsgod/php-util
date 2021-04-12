@@ -176,4 +176,9 @@ class Collection implements IteratorAggregate, Countable, JsonSerializable
         usort($array, $callback);
         return new Lists($array);
     }
+
+    public function merge(array $arrays): self
+    {
+        return new self(array_merge($this->all(), $arrays));
+    }
 }
