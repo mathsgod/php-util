@@ -5,7 +5,7 @@ use PHP\Util\Lists;
 use PHP\Util\HashMap;
 
 if (!function_exists("hash_map")) {
-    function hash_map(array $array)
+    function hash_map(array $array = [])
     {
         return new HashMap($array);
     }
