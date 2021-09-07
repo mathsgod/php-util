@@ -2,7 +2,7 @@
 
 namespace PHP\Util;
 
-class HashMap
+class HashMap implements Map
 {
     protected $array;
     public function __construct(array $array)
@@ -28,12 +28,20 @@ class HashMap
         return $this->array[$key];
     }
 
+    public function getOrDefault($key, $default)
+    {
+        if ($this->containsKey($key)) {
+            return $this->get($key);
+        }
+        return $default;
+    }
+
     public function clear()
     {
         $this->array = [];
     }
 
-    public function isEmpty()
+    public function isEmpty(): bool
     {
         return count($this->array) == 0;
     }
@@ -44,9 +52,6 @@ class HashMap
     }
 
 
-    /**
-     * 如果插入的 key 對應的 value 已經存在，則執行 value 替換操作，返回舊的 value 值，如果不存在則執行插入，返回 null。
-     */
     public function put($key, $value)
     {
         if (isset($this->array[$key])) {
@@ -59,10 +64,6 @@ class HashMap
         }
     }
 
-
-    /**
-     * 會先判斷指定的鍵（key）是否存在，不存在則將鍵/值對插入到 HashMap 中。
-     */
     public function putIfAbsent($key, $value)
     {
 
@@ -73,10 +74,6 @@ class HashMap
         return $this->array[$key];
     }
 
-    /**
-     * 如果指定 key，返回指定鍵 key 關聯的值，如果指定的 key 映射值為 null 或者該 key 並不存在於該 HashMap 中，此方法將返回null。
-     * 如果指定了 key 和 value，刪除成功返回 true，否則返回 false。
-     */
     public function remove($key, $value = null)
     {
         if (!isset($value)) {
@@ -94,8 +91,44 @@ class HashMap
         }
     }
 
-    public function containsKey($key)
+    public function containsKey($key): bool
     {
-        return isset($this->array[$key]);
+        return in_array($key, array_keys($this->array));
+    }
+
+    public function containsValue($value): bool
+    {
+        return in_array($value, $this->array);
+    }
+
+    public function forEach(callable $callable)
+    {
+        foreach ($this->array as $key => $value) {
+            $callable($key, $value);
+        }
+    }
+
+    public function values()
+    {
+        return collect($this->array);
+    }
+
+    public function putAll(Map $m)
+    {
+        $that = $this;
+        $m->forEach(function ($key, $value) use ($that) {
+            $that->put($key, $value);
+        });
+    }
+
+    public function merge($key, $value, callable $remapping_function)
+    {
+        if (!$this->containsKey($key)) {
+            $this->put($key, $value);
+        } else {
+            $value = $remapping_function($this->get($key), $value);
+            $this->put($key, $value);
+        }
+        return $value;
     }
 }

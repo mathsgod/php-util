@@ -71,4 +71,34 @@ final class HashMapTest extends TestCase
         $map->put(1, null);
         $this->assertTrue($map->containsKey(1));
     }
+
+    public function test_getOrDefault()
+    {
+        $map = hash_map([1 => "a"]);
+        $this->assertEquals("a", $map->getOrDefault(1, "b"));
+        $this->assertEquals("b", $map->getOrDefault(2, "b"));
+    }
+
+    public function test_putAll()
+    {
+        $map = hash_map([1 => "a", 2 => "b"]);
+        $map->putAll(hash_map([2 => "x", 3 => "y"]));
+
+
+        $this->assertEquals(3, $map->size());
+        $this->assertEquals("x", $map->get(2));
+        $this->assertEquals("y", $map->get(3));
+    }
+
+    public function test_merge()
+    {
+        $map = hash_map([1 => 1, 2 => 2]);
+        $map->merge(3, 3, fn ($old, $new) => $old + $new);
+
+        $this->assertEquals(3, $map->get(3));
+
+
+        $map->merge(3, 10, fn ($old, $new) => $old + $new);
+        $this->assertEquals(13, $map->get(3));
+    }
 }
