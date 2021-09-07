@@ -23,7 +23,7 @@ class SimpleEntry implements Entry
 
     public function getValue()
     {
-        return $this->getValue();
+        return $this->value;
     }
 
     public function setValue($value)
