@@ -58,4 +58,11 @@ interface Map
      * If the specified key is not already associated with a value or is associated with null, associates it with the given non-null value.
      */
     public function merge($key, $value, callable $remapping_function);
+
+
+    /**
+     * Returns a Set view of the mappings contained in this map.
+     * 
+     */
+    public function entrySet(): Set;
 }

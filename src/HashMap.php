@@ -2,6 +2,8 @@
 
 namespace PHP\Util;
 
+use PHP\Util\AbstractMap\SimpleEntry;
+
 class HashMap implements Map
 {
     protected $array;
@@ -130,5 +132,17 @@ class HashMap implements Map
             $this->put($key, $value);
         }
         return $value;
+    }
+
+    public function entrySet(): Set
+    {
+        $set = new Set([]);
+
+        $this->forEach(function ($key, $value) use ($set) {
+            $entry = new SimpleEntry($key, $value);
+            $set->add($entry);
+        });
+
+        return $set;
     }
 }
