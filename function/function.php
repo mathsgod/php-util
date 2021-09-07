@@ -2,6 +2,14 @@
 
 use PHP\Util\Collection;
 use PHP\Util\Lists;
+use PHP\Util\HashMap;
+
+if (!function_exists("hash_map")) {
+    function hash_map(array $array)
+    {
+        return new HashMap($array);
+    }
+}
 
 if (!function_exists("collect")) {
     function collect(array|Traversable $array)
