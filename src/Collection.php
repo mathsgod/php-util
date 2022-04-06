@@ -20,7 +20,7 @@ class Collection implements IteratorAggregate, Countable, JsonSerializable
         $this->elements = new ArrayObject(array_values($array));
     }
 
-    public function getIterator()
+    public function getIterator(): Traversable
     {
         return $this->elements->getIterator();
     }
@@ -63,7 +63,7 @@ class Collection implements IteratorAggregate, Countable, JsonSerializable
         $this->elements->exchangeArray($array);
     }
 
-    public function count()
+    public function count(): int
     {
         return $this->elements->count();
     }
