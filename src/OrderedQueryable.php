@@ -3,11 +3,12 @@
 namespace PHP\Util;
 
 use ArrayObject;
+use Traversable;
 
 class OrderedQueryable extends Queryable implements IOrderedQueryable
 {
 
-    public function getIterator()
+    public function getIterator(): Traversable
     {
         $order_expression = null;
 

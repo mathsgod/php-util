@@ -85,7 +85,7 @@ class Queryable implements IQueryable
         return $source;
     }
 
-    public function getIterator()
+    public function getIterator(): Traversable
     {
         $source = $this->source;
         foreach ($this->expression as $expression) {

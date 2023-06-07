@@ -150,7 +150,7 @@ class Collection implements IteratorAggregate, Countable, JsonSerializable
         return $this->all();
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         return $this->all();
     }
