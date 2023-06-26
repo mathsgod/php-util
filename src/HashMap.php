@@ -79,9 +79,13 @@ class HashMap implements Map
     public function remove($key, $value = null)
     {
         if (!isset($value)) {
-            $value = $this->array[$key];
-            unset($this->array[$key]);
-            return $value;
+            //direct remove
+            if ($this->containsKey($key)) {
+                $value = $this->array[$key];
+                unset($this->array[$key]);
+                return $value;
+            }
+            return null;
         } else {
 
             if ($this->array[$key] == $value) {

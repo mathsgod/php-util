@@ -93,12 +93,16 @@ final class HashMapTest extends TestCase
     public function test_merge()
     {
         $map = hash_map([1 => 1, 2 => 2]);
-        $map->merge(3, 3, fn ($old, $new) => $old + $new);
+        $map->merge(3, 3, function ($old, $new) {
+            return $old + $new;
+        });
 
         $this->assertEquals(3, $map->get(3));
 
 
-        $map->merge(3, 10, fn ($old, $new) => $old + $new);
+        $map->merge(3, 10, function ($old, $new) {
+            return $old + $new;
+        });
         $this->assertEquals(13, $map->get(3));
     }
 }

@@ -10,14 +10,15 @@
         }
     ],
     "require": {
-        "php": ">=8.0"
+        "php": ">=7.3"
     },
     "require-dev": {
         "phpunit/phpunit": "^9.5"
     },
     "scripts": {
         "test": "phpunit tests",
-        "test81":"php81 ./vendor/bin/phpunit tests"
+        "test81": "php81 ./vendor/bin/phpunit tests",
+        "test73": "php73 ./vendor/bin/phpunit tests"
     },
     "autoload": {
         "psr-4": {

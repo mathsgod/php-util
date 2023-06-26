@@ -12,14 +12,20 @@ if (!function_exists("hash_map")) {
 }
 
 if (!function_exists("collect")) {
-    function collect(array|Traversable $array)
+    /**
+     * @param array|Traversable $array
+     */
+    function collect($array)
     {
         return new Collection($array);
     }
 }
 
 if (!function_exists("lists")) {
-    function lists(array|Traversable $array)
+    /**
+     * @param array|Traversable $array
+     */
+    function lists($array)
     {
         return new Lists($array);
     }
