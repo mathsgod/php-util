@@ -114,7 +114,7 @@ class Collection implements IteratorAggregate, Countable, JsonSerializable
         return new self(array_diff($this->all(), $array));
     }
 
-    public function splice(int $offset, int $length = null): self
+    public function splice(int $offset, ?int $length = null): self
     {
         $array = $this->all();
         array_splice($array, $offset, $length ?? $this->count());
